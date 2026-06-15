@@ -21,7 +21,7 @@ pipeline {
                 echo "Version Received: ${params.version}"
             }
         }
-    }
+    
 
     stage('Init') {
             steps {
@@ -40,6 +40,7 @@ pipeline {
                 '''
             }
         }
+    }
 
     post {
         always {
