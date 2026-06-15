@@ -1,5 +1,5 @@
 module "catalogue_instance" {
-  source = "git::https://github.com/jana-tech0/terraform-modules.git//modules/ec2""
+  source = "git::https://github.com/jana-tech0/terraform-modules.git//modules/ec2"
   ami = "ami-0f38e4c6b228846b1"
 
   instance_type = "t3.medium"
