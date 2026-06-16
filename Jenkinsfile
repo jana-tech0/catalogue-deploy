@@ -40,6 +40,15 @@ pipeline {
                 '''
             }
         }
+
+        stage('Apply') {
+          steps {
+             sh '''
+                cd terraform
+                terraform apply -auto-approve
+            '''
+    }
+}
     }
 
     post {
