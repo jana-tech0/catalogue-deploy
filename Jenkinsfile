@@ -14,14 +14,23 @@ pipeline {
     }
 
     stages {
-        stage('Deploy') {
+        stage('Init') {
             steps {
-                echo "Deploying..."
-                echo "Version Received: ${params.version}"
+                sh '''
+                    cd terraform
+                    terraform init -reconfigure
+                '''
             }
         }
 
-        
+        stage('Plan') {
+            steps {
+                sh '''
+                    cd terraform
+                    terraform plan
+                '''
+            }
+        }
 
         stage('Apply') {
             steps {
@@ -31,11 +40,16 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying version: ${params.version}"
+            }
+        }
     }
 
     post {
         always {
-            echo 'cleaning up workspace'
             deleteDir()
         }
     }
