@@ -6,7 +6,7 @@ variable "env" {
   default = "dev"
 }
 
-variable "version" {
+variable "app_version" {        # ← rename from "version" to "app_version"
   description = "App version to deploy"
   type        = string
 }
