@@ -14,16 +14,14 @@ pipeline {
     }
 
     stages {
-
         stage('Deploy') {
             steps {
                 echo "Deploying..."
                 echo "Version Received: ${params.version}"
             }
         }
-    
 
-    stage('Init') {
+        stage('Init') {
             steps {
                 sh '''
                     cd terraform
@@ -42,13 +40,13 @@ pipeline {
         }
 
         stage('Apply') {
-          steps {
-             sh '''
-                cd terraform
-                terraform destroy -auto-approve
-            '''
-    }
-}
+            steps {
+                sh '''
+                    cd terraform
+                    terraform apply -auto-approve
+                '''
+            }
+        }
     }
 
     post {
