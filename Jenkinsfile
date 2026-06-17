@@ -1,8 +1,5 @@
 pipeline {
     agent { node { label 'agent-1' } }
-    environment {
-        packageVersion = ''
-    }
     parameters {
         string(
             name: 'version',
@@ -14,8 +11,10 @@ pipeline {
         stage('Init') {
             steps {
                 script {
-                    env.packageVersion = params.version
-                    echo "version: ${env.packageVersion}"
+                    if (!params.version) {
+                        error "version parameter is required!"  // ← ADDED: fail fast
+                    }
+                    echo "version: ${params.version}"
                 }
             }
         }
@@ -31,7 +30,7 @@ pipeline {
             steps {
                 sh """
                     cd terraform
-                    terraform plan -var="app_version=${env.packageVersion}"
+                    terraform plan -var="app_version=${params.version}"  
                 """
             }
         }
@@ -39,13 +38,13 @@ pipeline {
             steps {
                 sh """
                     cd terraform
-                    terraform apply -auto-approve -var="app_version=${env.packageVersion}"
+                    terraform apply -auto-approve -var="app_version=${params.version}"
                 """
             }
         }
         stage('Deploy') {
             steps {
-                echo "Deployed version: ${env.packageVersion}"
+                echo "Deployed version: ${params.version}"
             }
         }
     }
