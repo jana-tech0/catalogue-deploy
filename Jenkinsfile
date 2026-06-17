@@ -5,52 +5,86 @@ pipeline {
         }
     }
 
-    parameters {
-        string(
-            name: 'version',
-            defaultValue: '1.0.1',
-            description: 'Which version to Deploy'
-        )
-    }
-
     stages {
-        stage('Init') {
+        stage('Get Version') {
             steps {
-                sh '''
-                    cd terraform
-                    terraform init -reconfigure
-                '''
+                script {
+                    def packageJson = readJSON(file: 'package.json')
+                    env.packageVersion = packageJson.version
+                    echo "Version: ${env.packageVersion}"
+                }
             }
         }
 
-        stage('Plan') {
+        stage('Install Dependencies') {
             steps {
-                sh '''
-                    cd terraform
-                    terraform plan
-                '''
+                sh 'npm install'
             }
         }
 
-        stage('Apply') {
+        stage('Unit Test') {
             steps {
-                sh '''
-                    cd terraform
-                    terraform destroy -auto-approve
-                '''
+                echo "Unit Testing Completed"
+            }
+        }
+
+        stage('Sonar Scan') {
+            steps {
+                echo "Sonar Scan Completed"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
+            }
+        }
+
+        stage('SAST') {
+            steps {
+                echo "SAST Completed"
+                echo "Package Version: ${env.packageVersion}"
+            }
+        }
+
+        stage('Publish Artifact') {
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '51.20.250.125:8081',
+                    groupId: 'com.roboshop',
+                    version: "${env.packageVersion}",
+                    repository: 'catalogue',
+                    credentialsId: 'nexus',
+                    artifacts: [
+                        [
+                            artifactId: 'catalogue',
+                            classifier: '',
+                            file: 'catalogue.zip',
+                            type: 'zip'
+                        ]
+                    ]
+                )
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying version: ${params.version}"
+                script {
+                    build job: "../catalogue-deploy",
+                          wait: true,
+                          parameters: [
+                              string(name: 'version', value: "${env.packageVersion}")
+                          ]
+                }
             }
         }
     }
 
     post {
         always {
-            deleteDir()
+            cleanWs()
         }
     }
 }
