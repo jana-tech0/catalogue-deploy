@@ -1,10 +1,8 @@
 pipeline {
-    agent {
-        node {
-            label 'agent-1'
-        }
+    agent { node { label 'agent-1' } }
+    environment {
+        packageVersion = ''
     }
-
     parameters {
         string(
             name: 'version',
@@ -12,9 +10,16 @@ pipeline {
             description: 'Which version to Deploy'
         )
     }
-
     stages {
         stage('Init') {
+            steps {
+                script {
+                    packageVersion = params.version
+                    echo "version: ${packageVersion}"
+                }
+            }
+        }
+        stage('Terraform Init') {
             steps {
                 sh '''
                     cd terraform
@@ -22,34 +27,31 @@ pipeline {
                 '''
             }
         }
-
-        stage('Plan') {
+        stage('Terraform Plan') {
             steps {
-                sh """
+                sh '''
                     cd terraform
-                    terraform plan -var="version=${params.version}"
-                """
+                    terraform plan
+                '''
             }
         }
-
-        stage('Apply') {
+        stage('Terraform Apply') {
             steps {
-                sh """
+                sh '''
                     cd terraform
-                    terraform apply -auto-approve -var="version=${params.version}"
-                """
+                    terraform apply -auto-approve
+                '''
             }
         }
-
         stage('Deploy') {
             steps {
-                echo "Deploying version: ${params.version}"
+                echo "Deployed version: ${packageVersion}"
             }
         }
     }
-
     post {
         always {
+            echo 'cleaning up workspace'
             deleteDir()
         }
     }
