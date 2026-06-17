@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     env.packageVersion = params.version
-                    echo "version: ${packageVersion}"
+                    echo "version: ${env.packageVersion}"
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 sh """
                     cd terraform
-                    terraform plan -var="app_version=${packageVersion}"
+                    terraform plan -var="app_version=${env.packageVersion}"
                 """
             }
         }
@@ -39,13 +39,13 @@ pipeline {
             steps {
                 sh """
                     cd terraform
-                    terraform apply -auto-approve -var="app_version=${packageVersion}"
+                    terraform apply -auto-approve -var="app_version=${env.packageVersion}"
                 """
             }
         }
         stage('Deploy') {
             steps {
-                echo "Deployed version: ${packageVersion}"
+                echo "Deployed version: ${env.packageVersion}"
             }
         }
     }
