@@ -21,23 +21,7 @@ pipeline {
             }
         }
 
-        stage('Init') {
-            steps {
-                sh '''
-                    cd terraform
-                    terraform init -reconfigure
-                '''
-            }
-        }
-
-        stage('Plan') {
-            steps {
-                sh '''
-                    cd terraform
-                    terraform plan
-                '''
-            }
-        }
+        
 
         stage('Apply') {
             steps {
