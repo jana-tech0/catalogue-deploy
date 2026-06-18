@@ -3,7 +3,7 @@ pipeline {
     parameters {
         string(
             name: 'version',
-            defaultValue: '',
+            defaultValue: 'NONE',
             description: 'Which version to Deploy'
         )
     }
