@@ -16,31 +16,3 @@ module "catalogue_instance" {
   )
 }
 
-resource "null_resource" "cluster" {
-  
-  triggers = {
-    instance_id = module.catalogue_instance.id
-  }
-
- 
-  connection {
-    type     = "ssh"
-    user     = "centos"
-    password = "DevOps321"
-    host     = module.catalogue_instance.private_ip
-  }
-
-  
-  provisioner "file" {
-    source      = "catalogue.sh"
-    destination = "/tmp/catalogue.sh"
-  }
-
-  provisioner "remote-exec" {
-   
-    inline = [
-      "chmod +x /tmp/catalogue.sh",
-      "sudo sh /tmp/catalogue.sh ${var.app_version} ${var.env}"
-    ]
-  }
-}
